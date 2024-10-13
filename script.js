@@ -59,13 +59,14 @@ class Cycling extends Workout {
 class App {
   #map;
   #mapEvent;
-  #workout = [];
+  #workouts = [];
 
   constructor() {
     // Run these code immediately after an object creation
     this._getPosition();
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
+    containerWorkouts.addEventListener('click', this._moveToMarker.bind(this));
   }
 
   _getPosition() {
@@ -136,7 +137,7 @@ class App {
       // Create new object
       const workout = new Running([lat, lng], distance, duration, cadence);
       this._createWorkoutList(workout);
-      this.#workout.push(workout);
+      this.#workouts.push(workout);
       this._clearForm();
       this._showMarker(lat, lng, workout);
     }
@@ -154,7 +155,7 @@ class App {
       // Create new object
       const workout = new Cycling([lat, lng], distance, duration, elevation);
       this._createWorkoutList(workout);
-      this.#workout.push(workout);
+      this.#workouts.push(workout);
       this._clearForm();
       this._showMarker(lat, lng, workout);
     }
@@ -227,6 +228,19 @@ class App {
     [inputCadence, inputDistance, inputDuration, inputElevation].forEach(
       (input) => (input.value = '')
     );
+  }
+
+  _moveToMarker(e) {
+    if (e.target.closest('.workout')) {
+      const clickedId = e.target.closest('.workout').dataset.id;
+      const matchedId = this.#workouts.find((w) => w.id === clickedId);
+
+      // Move to clicked workout form the list
+      this.#map.setView(matchedId.coords, 13, {
+        animate: true,
+        pan: { duration: 1 },
+      });
+    }
   }
 }
 
